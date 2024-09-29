@@ -335,8 +335,12 @@ class Particle:
         self.c = c
 
     def display(self, canvas):
-        return circle(canvas, toX(float(self.p.x)), toY(float(self.p.y)),
-                      toP(float(self.p.r)), color=self.c)
+        if type((self.p.x).tolist()) == list:
+            return circle(canvas, toX(float((self.p.x).tolist()[0])), toY(float((self.p.y).tolist()[0])),
+                      toP(float((self.p.r).tolist()[0])), color=self.c)
+        else:
+            return circle(canvas, toX(float((self.p.x).tolist())), toY(float((self.p.y).tolist())),
+                      toP(float((self.p.r).tolist())), color=self.c)           
 
     def move(self):
         self.p = ParticleState(self.p.x+self.p.vx*TIMESTEP,
@@ -591,13 +595,14 @@ class Agent:
         return getObsArray(self.state)
 
     def display(self, canvas, ball_x, ball_y):
-        bx = float(ball_x)
-        by = float(ball_y)
+
+        bx = float(ball_x.tolist()[0])
+        by = float(ball_y.tolist()[0])
         p = self.p
-        x = float(p.x)
-        y = float(p.y)
-        r = float(p.r)
-        direction = int(p.direction)
+        x = float(p.x.tolist()[0])
+        y = float(p.y.tolist()[0])
+        r = float(p.r.tolist()[0])
+        direction = int(p.direction.tolist()[0])
 
         angle = math.pi * 60 / 180
         if direction == 1:
@@ -624,7 +629,7 @@ class Agent:
                         color=(0, 0, 0))
 
         # draw coins (lives) left
-        num_lives = int(p.life)
+        num_lives = int(p.life[0])
         for i in range(1, num_lives):
             canvas = circle(canvas, toX(direction*(REF_W/2+0.5-i*2.)),
                             WINDOW_HEIGHT-toY(1.5), toP(0.5),
@@ -885,7 +890,7 @@ class SlimeVolley(VectorizedTask):
             return State(game_state=cur_state, obs=obs,
                          steps=steps, key=next_key), reward, done
         self._step_fn = jax.jit(jax.vmap(step_fn))
-
+        
     def reset(self, key: jnp.ndarray) -> State:
         return self._reset_fn(key)
 
